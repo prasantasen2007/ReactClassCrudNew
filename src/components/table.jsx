@@ -1,7 +1,7 @@
 import React from "react";
 
 const table = () => {
-  return <div>table</div>;
+  return <div>Table in main brunch!</div>;
 };
 
 export default table;
