@@ -18,7 +18,7 @@ import { AddEditModalNew } from "./AddEditModalNew";
 export const DynamicTable = () => {
   const [users, setUsers] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [selectedUser, setSelectedUser] = useState({});
+  const [selectedUser, setSelectedUser] = useState(null);
   /** This functions to get list of users **/
   const getUsers = () => {
     axios
@@ -46,12 +46,42 @@ export const DynamicTable = () => {
     });
   };
 
- const handleSaveUser = (id) => {
-
+  const handleSaveUser = (user) => {
+    axios
+      .post(
+        "https://dummyjson.com/users/add",
+        {
+          ...user,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    console.log(user, "user is");
+  };
+  const handleAddUser = () => {
+    setShowModal(true);
+    setSelectedUser(null);
   };
 
   return (
     <>
+      <Button
+        variant="contained"
+        size="small"
+        onClick={handleAddUser}
+        style={{ marginBottom: 20 }}
+      >
+        Add New User
+      </Button>
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
