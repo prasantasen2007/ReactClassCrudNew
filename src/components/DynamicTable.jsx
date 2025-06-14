@@ -14,6 +14,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import axios from "axios";
 import { AddEditModalNew } from "./AddEditModalNew";
+import { toast } from "react-toastify";
 
 export const DynamicTable = () => {
   const [users, setUsers] = useState([]);
@@ -41,32 +42,94 @@ export const DynamicTable = () => {
     setSelectedUser(user);
   };
   const handleDeleteUser = (id) => {
-    setUsers((prev) => {
-      return prev.filter((eachElement) => eachElement.id !== id);
-    });
+    axios
+      .delete(`https://dummyjson.com/users/${id}`)
+      .then((response) => {
+        console.log(response);
+
+        if (response.status == 200) {
+          setUsers((prev) => {
+            return prev.filter((eachElement) => eachElement.id !== id);
+          });
+          toast.success(response.message || "Deleted Successfully");
+        }
+      })
+      .catch((error) => {
+        toast.error("Failed to Delete User !");
+        console.log(error);
+      });
   };
 
   const handleSaveUser = (user) => {
-    axios
-      .post(
-        "https://dummyjson.com/users/add",
-        {
-          ...user,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
+    console.log(user);
+
+    if (user.id) {
+      axios
+        .put(
+          `https://dummyjson.com/users/${user.id}`,
+          {
+            ...user,
           },
-        }
-      )
-      .then((response) => {
-        console.log(response);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        )
+        .then((response) => {
+          console.log(response);
+          console.log(user);
+
+          if (response.status == 200) {
+            setUsers((prevUser) =>
+              prevUser.map((eachUser) =>
+                eachUser.id == user.id ? { ...user } : eachUser
+              )
+            );
+            toast.success("User updated successfully");
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          toast.error("Unabail to update user");
+        });
+    } else {
+      axios
+        .post(
+          "https://dummyjson.com/users/add",
+          {
+            ...user,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        )
+        .then((response) => {
+          console.log(response);
+          console.log(user);
+
+          if (response.status == 201) {
+            // setUsers((prev) => {
+            //   return [...prev, { ...user, id: prev.length + 1 }];
+            // });
+
+            setUsers((prev) => [...prev, { ...user, id: prev.length + 1 }]);
+          }
+          toast.success("User Added Successfully");
+        })
+        .catch((error) => {
+          console.log(error);
+          toast.error("Unable to update user");
+        });
+    }
+
     console.log(user, "user is");
   };
+
+  console.log(users);
+
   const handleAddUser = () => {
     setShowModal(true);
     setSelectedUser(null);
